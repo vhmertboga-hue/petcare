@@ -10,6 +10,7 @@ class File(Base):
     id = Column(Integer, primary_key=True, index=True)
     owner_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     animal_id = Column(Integer, ForeignKey("animals.id", ondelete="CASCADE"), nullable=True)
+    clinic_id = Column(Integer, ForeignKey("vets.id", ondelete="CASCADE"), nullable=True)
     filename = Column(String, nullable=False)
     file_data = Column(LargeBinary, nullable=True)
     s3_key = Column(String, nullable=True)
