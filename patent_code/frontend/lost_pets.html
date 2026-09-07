@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Kayıp Hayvanlar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>body{font-family:Arial;padding:1rem} .card{border:1px solid #ddd;padding:1rem;margin:0.5rem 0}</style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>#map{height:50vh}</style>
+</head>
+<body>
+  <h1>Kayıp Hayvan İlanları</h1>
+  <div>
+    <label>Tür: <input id="species" /></label>
+    <button id="search">Ara</button>
+  </div>
+  <div id="map"></div>
+  <div id="list"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script>
+    const map = L.map('map').setView([39.92,32.85],6);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19, attribution:'&copy; OSM'}).addTo(map);
+
+    async function load(species){
+      const q = new URLSearchParams(); if(species) q.set('species', species);
+      const res = await fetch('/api/lost_pets?' + q.toString());
+      const data = await res.json();
+      const list = document.getElementById('list'); list.innerHTML='';
+      data.forEach(p=>{
+        const el = document.createElement('div'); el.className='card';
+        el.innerHTML = `<strong>${p.name||'(isim yok)'} — ${p.species}</strong><div>${p.missing_region||''} ${p.missing_date||''}</div><div>${p.description||''}</div>`;
+        list.appendChild(el);
+        if(p.latitude && p.longitude){
+          L.marker([p.latitude,p.longitude]).addTo(map).bindPopup(el.innerText);
+        }
+      });
+    }
+    document.getElementById('search').addEventListener('click', ()=>load(document.getElementById('species').value));
+    load();
+  </script>
+</body>
+</html>

@@ -45,3 +45,15 @@ def test_vet_tariff_model_import():
     from backend.app.models.vet_tariff import VetTariff
 
     assert hasattr(VetTariff, "province")
+
+
+def test_phase6_models_import():
+    from backend.app.models.lost_pet import LostPet
+    from backend.app.models.adoption import Adoption
+    from backend.app.models.user_location import UserLocation
+    from backend.app.models.notification import Notification
+
+    assert hasattr(LostPet, "species")
+    assert hasattr(Adoption, "status")
+    assert hasattr(UserLocation, "latitude")
+    assert hasattr(Notification, "type")

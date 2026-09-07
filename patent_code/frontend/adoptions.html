@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Sahiplendirme</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>body{font-family:Arial;padding:1rem} .card{border:1px solid #ddd;padding:1rem;margin:0.5rem 0}</style>
+</head>
+<body>
+  <h1>Sahiplendirme İlanları</h1>
+  <div>
+    <label>Tür: <input id="species" /></label>
+    <label>Kısırlaştırma: <select id="ster"><option value="">hepsi</option><option value="1">Evet</option><option value="0">Hayır</option></select></label>
+    <button id="search">Ara</button>
+  </div>
+  <div id="list"></div>
+  <script>
+    async function load(){
+      const species=document.getElementById('species').value; const ster=document.getElementById('ster').value;
+      const q=new URLSearchParams(); if(species) q.set('species',species); if(ster!=='') q.set('sterilized', ster);
+      const res=await fetch('/api/adoptions?'+q.toString()); const data=await res.json();
+      const list=document.getElementById('list'); list.innerHTML='';
+      data.forEach(a=>{const el=document.createElement('div'); el.className='card'; el.innerHTML=`<strong>${a.species} ${a.breed||''}</strong><div>${a.location_region||''}</div><div>${a.description||''}</div>`; list.appendChild(el)});
+    }
+    document.getElementById('search').addEventListener('click', load);
+    load();
+  </script>
+</body>
+</html>
