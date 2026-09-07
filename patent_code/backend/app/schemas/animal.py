@@ -1,14 +1,15 @@
-from typing import Optional, List
+from typing import Optional, Dict
 from datetime import date
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class AnimalCreate(BaseModel):
     name: str
-    species: str
+    species: str = Field(default="Dog")
     breed: Optional[str]
     gender: Optional[str]
     birth_date: Optional[date]
+    age: Optional[int]
     weight: Optional[float]
     height: Optional[float]
     color: Optional[str]
@@ -25,11 +26,13 @@ class AnimalCreate(BaseModel):
 
 class AnimalRead(BaseModel):
     id: int
+    owner_id: int
     name: str
     species: str
     breed: Optional[str]
     gender: Optional[str]
     birth_date: Optional[date]
+    age: Optional[int]
     weight: Optional[float]
     height: Optional[float]
     color: Optional[str]
@@ -44,36 +47,26 @@ class AnimalRead(BaseModel):
 
     class Config:
         orm_mode = True
-from pydantic import BaseModel, Field
-from typing import Optional, Dict
-from datetime import date
 
 
-class AnimalCreate(BaseModel):
-    name: str
-    species: str = Field(default="Dog")
+class AnimalPrivateRead(AnimalRead):
+    microchip: Optional[str]
+
+
+class AnimalUpdate(BaseModel):
+    name: Optional[str]
     breed: Optional[str]
     gender: Optional[str]
     birth_date: Optional[date]
+    age: Optional[int]
     weight: Optional[float]
     height: Optional[float]
     color: Optional[str]
-    microchip: Optional[str]
-    neutered: Optional[bool] = False
-    location: Optional[Dict]
+    neutered: Optional[bool]
+    latitude: Optional[float]
+    longitude: Optional[float]
     allergies: Optional[str]
     chronic_conditions: Optional[str]
     medications: Optional[str]
     vet_id: Optional[int]
     notes: Optional[str]
-
-
-class AnimalRead(BaseModel):
-    id: int
-    owner_id: int
-    name: str
-    species: str
-    breed: Optional[str]
-
-    class Config:
-        orm_mode = True

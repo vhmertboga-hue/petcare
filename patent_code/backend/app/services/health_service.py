@@ -1,3 +1,73 @@
+from typing import List, Optional
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
+
+from backend.app.models.health import (
+    Vaccination,
+    Medication,
+    VetVisit,
+    LabTest,
+    Operation,
+    DiseaseHistory,
+    WeightHistory,
+    HealthNote,
+    HealthDocument,
+)
+from backend.app.schemas.health import (
+    VaccinationCreate,
+    MedicationCreate,
+    VetVisitCreate,
+    LabTestCreate,
+    OperationCreate,
+    DiseaseHistoryCreate,
+    WeightHistoryCreate,
+    HealthNoteCreate,
+    HealthDocumentCreate,
+)
+
+
+async def create_vaccination(db: AsyncSession, animal_id: int, payload: VaccinationCreate) -> Vaccination:
+    v = Vaccination(
+        animal_id=animal_id,
+        name=payload.name,
+        date=payload.date,
+        next_date=payload.next_date,
+        veterinarian_id=payload.veterinarian_id,
+        clinic=payload.clinic,
+        note=payload.note,
+    )
+    db.add(v)
+    await db.flush()
+    await db.commit()
+    await db.refresh(v)
+    return v
+
+
+async def list_vaccinations(db: AsyncSession, animal_id: int) -> List[Vaccination]:
+    r = await db.execute(select(Vaccination).where(Vaccination.animal_id == animal_id))
+    return r.scalars().all()
+
+
+async def create_medication(db: AsyncSession, animal_id: int, payload: MedicationCreate) -> Medication:
+    m = Medication(
+        animal_id=animal_id,
+        name=payload.name,
+        dose=payload.dose,
+        frequency=payload.frequency,
+        start_date=payload.start_date,
+        end_date=payload.end_date,
+        note=payload.note,
+    )
+    db.add(m)
+    await db.flush()
+    await db.commit()
+    await db.refresh(m)
+    return m
+
+
+async def list_medications(db: AsyncSession, animal_id: int) -> List[Medication]:
+    r = await db.execute(select(Medication).where(Medication.animal_id == animal_id))
+    return r.scalars().all()
 from backend.app.db.session import SessionLocal
 from backend.app.models.health import Vaccination, Medication, Visit, HealthDocument, WeightHistory, HealthNote
 from sqlalchemy.orm import Session

@@ -59,7 +59,8 @@ PY
           alembic upgrade head
       - name: Run tests
         run: |
-          pytest -q backend/tests
+          pip install pytest
+          pytest -q patent_code/tests
 name: CI
 
 on:

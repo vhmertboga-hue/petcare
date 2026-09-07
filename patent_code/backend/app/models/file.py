@@ -9,8 +9,9 @@ class File(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     owner_id = Column(Integer, ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
+    animal_id = Column(Integer, ForeignKey("animals.id", ondelete="CASCADE"), nullable=True)
     filename = Column(String, nullable=False)
-    content = Column(LargeBinary, nullable=True)
+    file_data = Column(LargeBinary, nullable=True)
     s3_key = Column(String, nullable=True)
     url = Column(String, nullable=True)
     mimetype = Column(String, nullable=True)

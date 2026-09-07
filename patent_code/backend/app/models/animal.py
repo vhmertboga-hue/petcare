@@ -10,7 +10,7 @@ class Animal(Base):
     id = Column(Integer, primary_key=True, index=True)
     owner_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
     name = Column(String, nullable=False)
-    species = Column(String, nullable=False, default="dog")
+    species = Column(String, nullable=False, default="Dog")
     breed = Column(String, nullable=True)
     gender = Column(String, nullable=True)
     birth_date = Column(Date, nullable=True)
@@ -20,7 +20,6 @@ class Animal(Base):
     color = Column(String, nullable=True)
     microchip = Column(String, nullable=True)
     neutered = Column(Boolean, default=False)
-    photo_id = Column(Integer, ForeignKey("files.id"), nullable=True)
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
     allergies = Column(Text, nullable=True)
@@ -32,33 +31,3 @@ class Animal(Base):
     owner = relationship("User", foreign_keys=[owner_id])
     vet = relationship("User", foreign_keys=[vet_id])
     photos = relationship("File", back_populates="animal")
-from sqlalchemy import Column, Integer, String, Date, Float, Boolean, ForeignKey, JSON
-from sqlalchemy.orm import relationship
-from backend.app.models.base import Base
-
-
-class Animal(Base):
-    __tablename__ = "animals"
-
-    id = Column(Integer, primary_key=True, index=True)
-    owner_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), nullable=False)
-    name = Column(String, nullable=False)
-    species = Column(String, nullable=False, default="Dog")
-    breed = Column(String, nullable=True)
-    gender = Column(String, nullable=True)
-    birth_date = Column(Date, nullable=True)
-    age = Column(Integer, nullable=True)
-    weight = Column(Float, nullable=True)
-    height = Column(Float, nullable=True)
-    color = Column(String, nullable=True)
-    microchip = Column(String, nullable=True)
-    neutered = Column(Boolean, default=False)
-    photo = Column(String, nullable=True)
-    location = Column(JSON, nullable=True)
-    allergies = Column(String, nullable=True)
-    chronic_conditions = Column(String, nullable=True)
-    medications = Column(String, nullable=True)
-    vet_id = Column(Integer, ForeignKey("vets.id", ondelete="SET NULL"), nullable=True)
-    notes = Column(String, nullable=True)
-
-    owner = relationship("User", backref="animals")

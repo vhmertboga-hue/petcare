@@ -1,6 +1,13 @@
+def get_animal(db: Session, animal_id: int):
+def list_animals_for_owner(db: Session, owner_id: int):
+def update_animal(db: Session, animal: Animal, updates: dict):
+def delete_animal(db: Session, animal: Animal):
+from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select, update, delete
+
 from backend.app.models.animal import Animal
-from backend.app.schemas.animal import AnimalCreate
+from backend.app.schemas.animal import AnimalCreate, AnimalUpdate
 
 
 async def create_animal(db: AsyncSession, owner_id: int, payload: AnimalCreate) -> Animal:
@@ -11,6 +18,7 @@ async def create_animal(db: AsyncSession, owner_id: int, payload: AnimalCreate) 
         breed=payload.breed,
         gender=payload.gender,
         birth_date=payload.birth_date,
+        age=payload.age,
         weight=payload.weight,
         height=payload.height,
         color=payload.color,
@@ -31,41 +39,23 @@ async def create_animal(db: AsyncSession, owner_id: int, payload: AnimalCreate) 
     return a
 
 
-async def get_animal(db: AsyncSession, animal_id: int):
-    from sqlalchemy import select
-
+async def get_animal(db: AsyncSession, animal_id: int) -> Optional[Animal]:
     r = await db.execute(select(Animal).where(Animal.id == animal_id))
     return r.scalars().first()
-from backend.app.db.session import SessionLocal
-from backend.app.models.animal import Animal
-from sqlalchemy.orm import Session
 
 
-def create_animal(db: Session, owner_id: int, data: dict):
-    a = Animal(owner_id=owner_id, **data)
-    db.add(a)
-    db.commit()
-    db.refresh(a)
-    return a
+async def list_animals_for_owner(db: AsyncSession, owner_id: int) -> List[Animal]:
+    r = await db.execute(select(Animal).where(Animal.owner_id == owner_id))
+    return r.scalars().all()
 
 
-def get_animal(db: Session, animal_id: int):
-    return db.query(Animal).filter(Animal.id == animal_id).first()
+async def update_animal(db: AsyncSession, animal_id: int, updates: AnimalUpdate) -> Optional[Animal]:
+    stmt = update(Animal).where(Animal.id == animal_id).values(**{k: v for k, v in updates.dict(exclude_unset=True).items()})
+    await db.execute(stmt)
+    await db.commit()
+    return await get_animal(db, animal_id)
 
 
-def list_animals_for_owner(db: Session, owner_id: int):
-    return db.query(Animal).filter(Animal.owner_id == owner_id).all()
-
-
-def update_animal(db: Session, animal: Animal, updates: dict):
-    for k, v in updates.items():
-        setattr(animal, k, v)
-    db.add(animal)
-    db.commit()
-    db.refresh(animal)
-    return animal
-
-
-def delete_animal(db: Session, animal: Animal):
-    db.delete(animal)
-    db.commit()
+async def delete_animal(db: AsyncSession, animal_id: int) -> None:
+    await db.execute(delete(Animal).where(Animal.id == animal_id))
+    await db.commit()
