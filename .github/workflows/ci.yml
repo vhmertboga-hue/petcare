@@ -1,34 +1,67 @@
 name: CI
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
+    branches: [ main ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
+  workflow_dispatch: {}
 
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  test:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: petcare
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
+    env:
+      DATABASE_URL: postgresql+asyncpg://postgres:postgres@postgres:5432/petcare
+      REDIS_URL: redis://redis:6379/0
+
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
-
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, world!
-
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
+          python -m pip install --upgrade pip
+          pip install -r patent_code/requirements.txt
+      - name: Wait for Postgres
+        run: |
+          python - <<'PY'
+import os, time, asyncio
+import asyncpg
+url = os.environ.get('DATABASE_URL')
+for i in range(30):
+    try:
+        conn = asyncio.get_event_loop().run_until_complete(asyncpg.connect(url))
+        asyncio.get_event_loop().run_until_complete(conn.close())
+        print('Postgres ready')
+        break
+    except Exception as e:
+        print('Waiting for Postgres...', e)
+        time.sleep(2)
+else:
+    raise SystemExit('Postgres did not become ready')
+PY
+      - name: Apply migrations
+        working-directory: patent_code
+        run: |
+          alembic upgrade head || true
+      - name: Run tests
+        run: |
+          pytest -q patent_code/tests
