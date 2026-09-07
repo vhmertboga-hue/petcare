@@ -57,3 +57,8 @@ def test_phase6_models_import():
     assert hasattr(Adoption, "status")
     assert hasattr(UserLocation, "latitude")
     assert hasattr(Notification, "type")
+
+
+def test_ai_model_import():
+    from backend.app.models.ai_request_log import AIRequestLog
+    assert hasattr(AIRequestLog, "prompt")

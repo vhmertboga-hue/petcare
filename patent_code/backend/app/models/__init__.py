@@ -24,3 +24,4 @@ from backend.app.models.lost_pet import LostPet
 from backend.app.models.adoption import Adoption
 from backend.app.models.user_location import UserLocation
 from backend.app.models.notification import Notification
+from backend.app.models.ai_request_log import AIRequestLog

@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>AI Destekli Sağlık</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>body{font-family:Arial;padding:1rem} label{display:block;margin:0.5rem 0}</style>
+  </head>
+<body>
+  <h1>Köpeğimin Nesi Var? / Kedimin Nesi Var?</h1>
+  <div>
+    <label>Tür: <select id="species"><option value="dog">Köpek</option><option value="cat">Kedi</option></select></label>
+    <label>Irk: <input id="breed" /></label>
+    <label>Yaş: <input id="age" /></label>
+    <label>Cinsiyet: <input id="gender" /></label>
+    <label>Kilo (kg): <input id="weight" type="number" step="0.1" /></label>
+    <label>Belirti: <input id="symptom" /></label>
+    <label>Belirti süresi (gün): <input id="symptom_duration" type="number" /></label>
+    <label>Davranış değişikliği: <input id="behavior_change" /></label>
+    <label>Fotoğraf: <input id="photo" type="file" /></label>
+    <button id="ask">Sor</button>
+  </div>
+  <div id="result"></div>
+
+  <script>
+    async function uploadFile(file){
+      if(!file) return null;
+      const fd=new FormData(); fd.append('file', file);
+      const res=await fetch('/api/files/upload', {method:'POST', body:fd, credentials:'include'});
+      if(!res.ok) return null; const j=await res.json(); return j.file_id || null;
+    }
+
+    document.getElementById('ask').addEventListener('click', async ()=>{
+      const species=document.getElementById('species').value;
+      const payload={
+        species,
+        breed: document.getElementById('breed').value,
+        age: document.getElementById('age').value,
+        gender: document.getElementById('gender').value,
+        weight: parseFloat(document.getElementById('weight').value) || undefined,
+        symptom: document.getElementById('symptom').value,
+        symptom_duration_days: parseInt(document.getElementById('symptom_duration').value) || undefined,
+        behavior_change: document.getElementById('behavior_change').value
+      };
+      const fileEl=document.getElementById('photo');
+      if(fileEl.files.length>0){
+        const fileId = await uploadFile(fileEl.files[0]);
+        if(fileId) payload.photo_file_id = fileId;
+      }
+      const res = await fetch('/api/ai/diagnose', {method:'POST', credentials:'include', headers:{'Content-Type':'application/json'}, body: JSON.stringify(payload)});
+      const data = await res.json();
+      const out=document.getElementById('result'); out.innerHTML='';
+      if(data.possible_causes){
+        out.innerHTML += `<h3>Olası Nedenler</h3>`;
+        data.possible_causes.forEach(c=>{ out.innerHTML += `<div><strong>${c.cause}</strong> (${c.confidence||''})<div>${c.notes||''}</div></div>`});
+      }
+      out.innerHTML += `<h3>Uyarı</h3><div>${data.disclaimer || 'Bu bilgiler veteriner hekim muayenesinin yerine geçmez.'}</div>`;
+      if(data.urgent_signs && data.urgent_signs.length>0){
+        out.innerHTML += `<button onclick="window.location.href='/frontend/leaflet_map.html'">ACİL VETERİNER BUL</button>`;
+      }
+    });
+  </script>
+</body>
+</html>
