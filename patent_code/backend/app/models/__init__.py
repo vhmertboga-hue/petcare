@@ -25,3 +25,6 @@ from backend.app.models.adoption import Adoption
 from backend.app.models.user_location import UserLocation
 from backend.app.models.notification import Notification
 from backend.app.models.ai_request_log import AIRequestLog
+from backend.app.models.pet_hotel import PetHotel
+from backend.app.models.reservation import Reservation
+from backend.app.models.business import Business

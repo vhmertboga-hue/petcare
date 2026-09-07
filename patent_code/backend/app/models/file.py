@@ -14,6 +14,7 @@ class File(Base):
     tariff_id = Column(Integer, ForeignKey("vet_tariffs.id", ondelete="CASCADE"), nullable=True)
     lost_pet_id = Column(Integer, ForeignKey("lost_pets.id", ondelete="CASCADE"), nullable=True)
     adoption_id = Column(Integer, ForeignKey("adoptions.id", ondelete="CASCADE"), nullable=True)
+    pet_hotel_id = Column(Integer, ForeignKey("pet_hotels.id", ondelete="CASCADE"), nullable=True)
     filename = Column(String, nullable=False)
     file_data = Column(LargeBinary, nullable=True)
     s3_key = Column(String, nullable=True)
@@ -27,3 +28,4 @@ class File(Base):
     tariff = relationship("VetTariff")
     lost_pet = relationship("LostPet")
     adoption = relationship("Adoption")
+    pet_hotel = relationship("PetHotel")
