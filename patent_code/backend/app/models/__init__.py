@@ -19,3 +19,4 @@ from backend.app.models.health import (
 	HealthDocument,
 )
 from backend.app.models.clinic_review import ClinicReview
+from backend.app.models.vet_tariff import VetTariff

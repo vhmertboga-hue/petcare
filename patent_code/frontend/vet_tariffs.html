@@ -1,0 +1,60 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Veteriner Tarifeleri</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial, sans-serif; padding: 1rem; }
+    .notice { background:#fff3cd; border:1px solid #ffeeba; padding:1rem; margin-bottom:1rem; }
+    table { width:100%; border-collapse: collapse; }
+    th, td { border:1px solid #ddd; padding:8px; }
+    th { background:#f8f9fa; }
+  </style>
+</head>
+<body>
+  <h1>Veteriner Hekimleri Odası Fiyat Tarifeleri</h1>
+  <div class="notice">
+    <strong>Uyarı:</strong> Bu tutar ilgili Veteriner Hekimleri Odası tarafından yayımlanan tarife bilgisidir. Gerçek hizmet bedeli klinik, hizmet kapsamı ve uygulama koşullarına göre farklılık gösterebilir.
+  </div>
+
+  <div>
+    <label>İl: <input id="province" /></label>
+    <label>Yıl: <input id="year" type="number" /></label>
+    <label>Hizmet: <input id="service" /></label>
+    <button id="search">Ara</button>
+  </div>
+
+  <div id="results">
+    <table id="tariff_table">
+      <thead>
+        <tr><th>İl</th><th>Yıl</th><th>Dönem</th><th>Hizmet</th><th>Kategori</th><th>Tutar</th><th>Birim</th><th>Kaynak</th><th>Güncelleme</th></tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
+
+  <script>
+    async function search() {
+      const province = document.getElementById('province').value || '';
+      const year = document.getElementById('year').value || '';
+      const service = document.getElementById('service').value || '';
+      const q = new URLSearchParams();
+      if (province) q.set('province', province);
+      if (year) q.set('year', year);
+      if (service) q.set('service_name', service);
+      const res = await fetch('/api/tariffs?' + q.toString());
+      const data = await res.json();
+      const tbody = document.querySelector('#tariff_table tbody');
+      tbody.innerHTML = '';
+      data.forEach(t => {
+        const tr = document.createElement('tr');
+        const period = (t.start_date || '') + ' — ' + (t.end_date || '');
+        tr.innerHTML = `<td>${t.province}</td><td>${t.year}</td><td>${period}</td><td>${t.service_name}</td><td>${t.service_category || ''}</td><td>${t.official_amount != null ? t.official_amount : ''}</td><td>${t.unit || ''}</td><td>${t.source || ''}</td><td>${t.last_updated_at || ''}</td>`;
+        tbody.appendChild(tr);
+      });
+    }
+    document.getElementById('search').addEventListener('click', search);
+  </script>
+</body>
+</html>

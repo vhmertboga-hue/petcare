@@ -39,3 +39,9 @@ def test_clinic_review_model_import():
     from backend.app.models.clinic_review import ClinicReview
 
     assert hasattr(ClinicReview, "clinic_id")
+
+
+def test_vet_tariff_model_import():
+    from backend.app.models.vet_tariff import VetTariff
+
+    assert hasattr(VetTariff, "province")
