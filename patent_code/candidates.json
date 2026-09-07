@@ -1,0 +1,42 @@
+[
+  {
+    "name": "Laptop stand",
+    "price": 999,
+    "supplier_price": 380,
+    "shipping_cost": 35,
+    "commission_pct": 0.1,
+    "ad_cost": 30,
+    "packaging_cost": 15,
+    "margin_pct": 43.95
+  },
+  {
+    "name": "USB-C hub",
+    "price": 1199,
+    "supplier_price": 470,
+    "shipping_cost": 45,
+    "commission_pct": 0.1,
+    "ad_cost": 35,
+    "packaging_cost": 20,
+    "margin_pct": 42.46
+  },
+  {
+    "name": "Kablosuz kulaklık",
+    "price": 1499,
+    "supplier_price": 620,
+    "shipping_cost": 60,
+    "commission_pct": 0.1,
+    "ad_cost": 40,
+    "packaging_cost": 20,
+    "margin_pct": 40.63
+  },
+  {
+    "name": "Akıllı saat",
+    "price": 1799,
+    "supplier_price": 780,
+    "shipping_cost": 70,
+    "commission_pct": 0.1,
+    "ad_cost": 45,
+    "packaging_cost": 25,
+    "margin_pct": 38.86
+  }
+]

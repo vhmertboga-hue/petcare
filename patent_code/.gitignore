@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.Python
+env/
+venv/
+.venv/
+
+# IDEs
+.vscode/
+.idea/
+
+# Mac
+.DS_Store
+
+# Environment
+.env
+.env.*
+
+# Packaging
+dist/
+build/
+
+# Pytest
+.pytest_cache/
+
+# Docker
+docker-compose.override.yml
+__pycache__/
+*.py[cod]
+.mypy_cache/
+.pytest_cache/
+.env
+venv/
+/.venv
+dist/
+build/
+*.egg-info/
+node_modules/
+/.idea/
+.vscode/
+coverage.xml
+coverage/
+*.sqlite3
