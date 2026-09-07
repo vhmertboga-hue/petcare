@@ -1,7 +1,7 @@
 from typing import List, Optional, Dict, Any
 from math import radians, cos, sin, asin, sqrt
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func, text
 
 from backend.app.models.vet import Vet
 from backend.app.models.clinic_review import ClinicReview
@@ -33,7 +33,33 @@ async def get_clinic(db: AsyncSession, clinic_id: int) -> Optional[Vet]:
 
 
 async def list_clinics(db: AsyncSession, lat: Optional[float] = None, lon: Optional[float] = None, filters: Dict = None) -> List[Dict]:
+    """List clinics. If PostGIS is available on the DB, prefer DB-side distance calculation for performance; otherwise fallback to in-Python Haversine."""
     filters = filters or {}
+
+    # Try PostGIS approach first
+    try:
+        if lat is not None and lon is not None:
+            # Use ST_DistanceSphere for accurate meters distance
+            stmt = select(Vet, func.ST_DistanceSphere(Vet.location, func.ST_MakePoint(lon, lat)).label("distance_m"))
+            # Apply simple filters in SQL
+            if filters.get("emergency"):
+                stmt = stmt.where(Vet.emergency == True)
+            if filters.get("open_24_7"):
+                stmt = stmt.where(Vet.open_24_7 == True)
+            if filters.get("open"):
+                stmt = stmt.where(Vet.is_open == True)
+            stmt = stmt.order_by(text("distance_m"))
+            res = await db.execute(stmt)
+            rows = res.all()
+            results = []
+            for v, dist in rows:
+                results.append({"clinic": v, "distance_km": None if dist is None else float(dist) / 1000.0})
+            return results
+    except Exception:
+        # if anything fails (no PostGIS, geometry type mismatch, etc.), fallback to Python method
+        pass
+
+    # Fallback: load clinics and compute distances in Python
     r = await db.execute(select(Vet))
     vets = r.scalars().all()
 

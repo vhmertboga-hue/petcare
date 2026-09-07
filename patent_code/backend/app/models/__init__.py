@@ -18,3 +18,4 @@ from backend.app.models.health import (
 	HealthNote,
 	HealthDocument,
 )
+from backend.app.models.clinic_review import ClinicReview
